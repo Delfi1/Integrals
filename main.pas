@@ -1,12 +1,12 @@
 program Integrals;
 uses Crt;
 
-var current, key, run: integer;
+var 
+    current, run: integer;
+    key: char;
 
 const 
     N: integer = 3;
-    
-    
     list: array[0..2] of string = ('First', 'Second', 'Third');
 
 procedure renderList();
@@ -24,19 +24,23 @@ begin
     writeln('Hello World');
     ClrScr;
 
-    { Is program running }
+    { Is program running? }
     run := 1;
     
     { Current list's value index }
     current := 0;
-    key := 0;
-
     while run <> 0 do begin
         renderList();
-        readln(key);
+        key := ReadKey;
     
         ClrScr;
-        writeln('Test');
+        writeln('Test: ');
+        { Match arrow keys and enter }
+        case key of
+            #72: writeln('Up');
+            #80: writeln('Down');
+            #13: writeln('Enter');
+        end;
     end;
     
 end.
