@@ -7,9 +7,9 @@ var
 
 const 
     N: integer = 3;
-    list: array[0..2] of string = ('First', 'Second', 'Third');
+    list: array[0..2] of string = ('Exit', 'Second', 'Third');
 
-procedure renderList();
+procedure renderList;
     var i: integer;
 begin
     
@@ -18,6 +18,17 @@ begin
         
         writeln(list[i]);
     end;
+end;
+
+procedure proceedCurrent;
+begin
+    writeln('Proceed current: ', current, '!');
+
+    case current of
+        0: run := 0;
+        1: write('Second!');
+        2: write('Third!');
+    end; 
 end;
 
 begin
@@ -30,17 +41,17 @@ begin
     { Current list's value index }
     current := 0;
     while run <> 0 do begin
-        renderList();
+        renderList;
         key := ReadKey;
     
         ClrScr;
-        writeln('Test: ');
         { Match arrow keys and enter }
         case key of
-            #72: writeln('Up');
-            #80: writeln('Down');
-            #13: writeln('Enter');
+            #72: current -= 1;
+            #80: current += 1;
+            #13: proceedCurrent;
         end;
+
+        current := (current + N) mod N;
     end;
-    
 end.
