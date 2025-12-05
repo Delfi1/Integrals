@@ -3,12 +3,16 @@ uses Crt;
 
 var 
     current, run: integer;
-    key: char;
-    a, b, step: double;
     
     { Limit and steps initalized flags }
     lm, st: integer;
 
+    a, b, step: double;
+
+    S, x, y0, y1: double;
+
+    key: char;
+    
 const 
     N: integer = 4;
     list: array[0..3] of string = ('Set limits', 'Set step', 'Execute', 'Exit');
@@ -28,6 +32,11 @@ begin
 
     write('Step of integration: ');
     readln(step);
+
+    if step < 0 then begin
+        writeln('Step is lower then zero!');
+        exit;
+    end;
     st := 1;
 end;
 
@@ -36,9 +45,13 @@ procedure renderList;
 begin
     for i := 0 to N-1 do begin
         if i = current then write('--> ');
-        
         writeln(list[i]);
     end;
+end;
+
+function executeF: double;
+begin
+    executeF := x*x*x -x*x + 4*x + 8;
 end;
 
 procedure executeIntegral;
@@ -49,7 +62,19 @@ begin
     end else if st <> 1 then begin
         writeln('Function step is not initialized');
     end else begin
-        writeln('Success!');
+        x := a;
+
+        S := 0;
+        while x < b do begin
+            y0 := executeF;
+
+            x += step;
+            y1 := executeF;
+
+            S += (y0 + y1) * step / 2;
+        end;
+
+        writeln('Result: ', S);
     end;
 
     key := ReadKey;
