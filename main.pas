@@ -14,15 +14,19 @@ var
     key: char;
     
 const 
-    N: integer = 4;
-    list: array[0..3] of string = ('Set limits', 'Set step', 'Execute', 'Exit');
+    N: integer = 5;
+    list: array[0..4] of string = ('Set limits', 'Set step', 'Execute', 'Accuracy', 'Exit');
 
 procedure setLimits;
 begin
     ClrScr;
 
-    write('Limits of integration: ');
-    readln(a, b);
+    write('Lower bound of integration: ');
+    readln(a);
+
+    write('Upper bound of integration: ');
+    readln(b);
+    
     lm := 1;
 end;
 
@@ -54,6 +58,11 @@ begin
     executeF := x*x*x -x*x + 4*x + 8;
 end;
 
+procedure executeAccuracy;
+begin
+
+end;
+
 procedure executeIntegral;
 begin
     if lm <> 1 then begin
@@ -74,7 +83,7 @@ begin
             S += (y0 + y1) * step / 2;
         end;
 
-        writeln('Result: ', S);
+        writeln('Result: ', S:2:2);
     end;
 
     key := ReadKey;
@@ -88,7 +97,8 @@ begin
         0: setLimits;
         1: setStep;
         2: executeIntegral;
-        3: run := 0;
+        3: executeAccuracy;
+        4: run := 0;
     end;
 end;
 
