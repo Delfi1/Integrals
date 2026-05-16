@@ -3,11 +3,9 @@ uses Crt;
 
 var
   current, run: integer;
-
-  i, lm, st: integer;
-  a, b, step: double;
-  S, S0, x, y0, y1, delta, eps: double;
-
+  i: integer;
+  a, b, c, step: double;
+  S, x, y0, y1, delta, eps: double;
   key: char;
 
 const
@@ -18,109 +16,108 @@ const
 procedure setLimits;
 begin
   ClrScr;
-
-  write('Bounds of integration: ');
+  write('Enter integration bounds (a and b): ');
   readln(a, b);
 
-  if x_zero > a then a := x_zero;
-  if x_zero > b then b := x_zero;
+  if a > b then begin
+    c := a;
+    a := b;
+    b := c;
+  end;
 
-  lm := 1;
+  if a < x_zero then a := x_zero;
+  if b < x_zero then b := x_zero;
 end;
 
 procedure setStep;
 begin
   ClrScr;
-
-  write('Step of integration: ');
+  write('Enter step (positive value): ');
   readln(step);
 
-  if step < 0 then begin
-    writeln('Step is lower then zero!');
-    exit;
+  if step <= 0 then begin
+    writeln('Error: Step must be greater than zero!');
+    ReadKey;
+    step := 0;
   end;
-  st := 1;
 end;
 
-function executeF: double;
+function exactF(v: double): double;
 begin
-  executeF := x*x*x -x*x + 4*x + 8;
+  exactF := (v*v*v*v / 4) - (v*v*v / 3) + (2*v*v) + (8*v);
+end;
+
+function executeF(v: double): double;
+begin
+  executeF := v*v*v -v*v + 4*v + 8;
 end;
 
 procedure executeIntegral;
+var exactS: double;
 begin
   x := a;
 
+  exactS := exactF(b) - exactf(a);
+
   S := 0;
   while x < b do begin
-    y0 := executeF;
-
+    y0 := executeF(x);
     x += step;
-    y1 := executeF;
+    y1 := executeF(x);
 
-    if (y0 > 0) and (y1 > 0) then S += (y0 + y1) * step / 2;
+    S += (y0 + y1) * step / 2;
   end;
+
+  exactS := exactF(b) - exactF(a);
+  delta := abs(S - exactS);
+  if abs(S) > 0.0001 then
+    eps := (delta/exactS)*100
+  else
+    eps := 0;
+
+  writeln('Integration results:');
+  writeln('Exact S: ', exactS:0:5);
+  writeln(S:0:5);
+
+  writeln('Absolute error: ', delta:0:5);
+  writeln('Relative error: ', eps:0:2, '%');
+  writeln('Press any key to return to menu...');
 end;
 
-
-procedure executeAccuracy;
 begin
-  step := step / 2;
-  executeIntegral;
-
-  delta := Abs(S0 - S)/3;
-  eps := (delta*100) / S;
-
-  writeln('Result: ');
-  writeln(S:2:2, ' +- ', delta:2:2);
-  writeln(S:2:2, ' +- ', eps:2:2, '%');
-end;
-
-begin
-  ClrScr;
-
   run := 1;
-  lm := 0;
-  st := 0;
-
   current := 0;
+  a := 0; b := 0;
   while run <> 0 do begin
     ClrScr;
 
+    writeln('Function: f(x) = x^3 - x^2 + 4x + 8');
+    writeln('Root: ', x_zero:0:4);
+    writeln('Current limits: a = ', a:0:2, ', b = ', b:0:2);
+    writeln('Current step: ', step:0:5);
+    writeln('------------------------------------');
+
     for i := 0 to N-1 do begin
-      if i = current then write('--> ');
+      if i = current then write(' --> ') else write('     ');
       writeln(list[i]);
     end;
+
     key := ReadKey;
-
     case key of
-      #72: current -= 1;
-      #80: current += 1;
-      #13: begin
-        writeln();
-
+      #72, #38: current := (current - 1 + N) mod N; { Стрелка вверх }
+      #80, #40: current := (current + 1) mod N;     { Стрелка вниз }
+      #13: begin { Enter }
         case current of
           0: setLimits;
           1: setStep;
           2: begin
-            if lm <> 1 then begin
-              writeln('Function limits are not initialized');
-              key := ReadKey;
-            end else if st <> 1 then begin
-              writeln('Function step is not initialized');
-            end else
-              executeIntegral;
-              S0 := S;
-              executeAccuracy;
-
-              key := ReadKey;
-          end;
+                if step > 0.0001 then executeIntegral
+                else writeln('Error: Set step first!');
+                ReadKey;
+             end;
           3: run := 0;
         end;
       end;
     end;
-
-    current := (current + N) mod N;
   end;
-
 end.
